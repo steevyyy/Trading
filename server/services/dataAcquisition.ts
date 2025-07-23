@@ -22,6 +22,13 @@ export class DataAcquisitionService {
         rateLimitRemaining: 500
       });
 
+      await this.storage.updateApiStatus('twelve_data', {
+        status: 'active',
+        errorMessage: null,
+        requestCount: 0,
+        rateLimitRemaining: 800
+      });
+
       for (const instrument of instruments) {
         await this.collectInstrumentData(instrument.id, instrument.symbol);
       }
@@ -45,36 +52,25 @@ export class DataAcquisitionService {
 
   private async collectInstrumentData(instrumentId: number, symbol: string): Promise<void> {
     try {
-      // Simulate data collection from Yahoo Finance/Alpha Vantage
-      // In a real implementation, this would make actual API calls
-      
-      const now = new Date();
-      const basePrice = this.getBasePrice(symbol);
-      const volatility = Math.random() * 0.02; // 2% volatility
-      
-      // Generate realistic OHLC data
-      const open = basePrice * (1 + (Math.random() - 0.5) * volatility);
-      const close = open * (1 + (Math.random() - 0.5) * volatility);
-      const high = Math.max(open, close) * (1 + Math.random() * volatility * 0.5);
-      const low = Math.min(open, close) * (1 - Math.random() * volatility * 0.5);
-      const volume = Math.random() * 1000000;
-
-      // Insert market data for different timeframes
       const timeframes = ['1m', '5m', '15m', '1h', '4h', '1d'];
       
       for (const timeframe of timeframes) {
-        await this.storage.insertMarketData({
-          instrumentId,
-          timestamp: now,
-          open: open.toFixed(5),
-          high: high.toFixed(5),
-          low: low.toFixed(5),
-          close: close.toFixed(5),
-          volume: volume.toFixed(2),
-          timeframe
-        });
-      }
+        const data = await this.getTwelveData(symbol, timeframe);
 
+        if (data && data.values) {
+          const latestData = data.values[0];
+          await this.storage.insertMarketData({
+            instrumentId,
+            timestamp: new Date(latestData.datetime),
+            open: latestData.open,
+            high: latestData.high,
+            low: latestData.low,
+            close: latestData.close,
+            volume: latestData.volume,
+            timeframe
+          });
+        }
+      }
     } catch (error) {
       await this.storage.insertSystemLog({
         level: 'error',
@@ -83,6 +79,20 @@ export class DataAcquisitionService {
         metadata: { symbol, error: String(error) }
       });
     }
+  }
+
+  private async getTwelveData(symbol: string, timeframe: string) {
+    const apiKey = process.env.TWELVE_DATA_API_KEY;
+    if (!apiKey) {
+      throw new Error("Twelve Data API key is not set.");
+    }
+    const url = `https://api.twelvedata.com/time_series?symbol=${symbol}&interval=${timeframe}&apikey=${apiKey}`;
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error(`Failed to fetch data from Twelve Data: ${response.statusText}`);
+    }
+
+    return response.json();
   }
 
   private getBasePrice(symbol: string): number {
@@ -131,6 +141,26 @@ export class DataAcquisitionService {
     } catch (error) {
       results.alpha_vantage = false;
       await this.storage.updateApiStatus('alpha_vantage', {
+        status: 'error',
+        errorMessage: String(error),
+        requestCount: 1,
+        rateLimitRemaining: 0
+      });
+    }
+
+    try {
+      // Test Twelve Data API
+      await this.getTwelveData('EUR/USD', '1min');
+      results.twelve_data = true;
+      await this.storage.updateApiStatus('twelve_data', {
+        status: 'active',
+        errorMessage: null,
+        requestCount: 1,
+        rateLimitRemaining: 799
+      });
+    } catch (error) {
+      results.twelve_data = false;
+      await this.storage.updateApiStatus('twelve_data', {
         status: 'error',
         errorMessage: String(error),
         requestCount: 1,
