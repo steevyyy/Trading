@@ -53,7 +53,8 @@ export function SentimentAnalysis() {
           <h4 className="text-sm font-medium text-slate-300 mb-3">Sentiment Sources</h4>
           <div className="space-y-3">
             {sentimentData?.bySource ? (
-              Object.entries(sentimentData.bySource).map(([source, score]) => {
+              sentimentData.bySource.map(item => {
+                const { source, average: score } = item;
                 const percentage = Math.max(0, Math.min(100, (score + 100) / 2));
                 const getSourceIcon = (source: string) => {
                   switch (source) {
@@ -75,7 +76,7 @@ export function SentimentAnalysis() {
                         {score >= 0 ? '+' : ''}{score.toFixed(0)}
                       </span>
                       <div className="w-16 bg-slate-700 rounded-full h-1">
-                        <div 
+                        <div
                           className={`h-1 rounded-full ${score >= 0 ? 'bg-green-500' : 'bg-red-500'}`}
                           style={{ width: `${percentage}%` }}
                         ></div>

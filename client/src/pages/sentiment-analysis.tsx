@@ -5,8 +5,26 @@ import { Progress } from "@/components/ui/progress";
 import { Link } from "wouter";
 import { ArrowLeft, MessageSquare, TrendingUp, TrendingDown } from "lucide-react";
 
+interface SentimentDataItem {
+  overall: number;
+  bySource: {
+    source: string;
+    average: number;
+    count?: number;
+    sentiment?: number;
+    confidence?: number;
+  }[];
+  recent: {
+    source: string;
+    sentiment: number;
+    content: string;
+    confidence: number;
+    timestamp: string;
+  }[];
+}
+
 export default function SentimentAnalysisPage() {
-  const { data: sentimentData, isLoading } = useQuery({
+  const { data: sentimentData, isLoading } = useQuery<SentimentDataItem>({
     queryKey: ['/api/sentiment-analysis'],
   });
 
@@ -111,7 +129,7 @@ export default function SentimentAnalysisPage() {
               <CardContent>
                 {sentimentData.bySource && sentimentData.bySource.length > 0 ? (
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    {sentimentData.bySource.map((source: any, index: number) => (
+                    {sentimentData.bySource.map((source, index: number) => (
                       <div key={index} className="p-4 bg-slate-700 rounded-lg">
                         <div className="flex items-center justify-between mb-2">
                           <div className="font-semibold capitalize">{source.source}</div>
@@ -119,7 +137,7 @@ export default function SentimentAnalysisPage() {
                             {source.count || 0} posts
                           </Badge>
                         </div>
-                        <div className={`text-2xl font-bold ${getSentimentColor(source.sentiment)}`}>
+                        <div className={`text-2xl font-bold ${getSentimentColor(source.sentiment || 0)}`}>
                           {source.sentiment?.toFixed(1) || '0.0'}
                         </div>
                         <div className="text-sm text-slate-400">
@@ -146,7 +164,7 @@ export default function SentimentAnalysisPage() {
               <CardContent>
                 {sentimentData.recent && sentimentData.recent.length > 0 ? (
                   <div className="space-y-4">
-                    {sentimentData.recent.map((post: any, index: number) => (
+                    {sentimentData.recent.map((post, index: number) => (
                       <div key={index} className="border border-slate-700 rounded-lg p-4">
                         <div className="flex items-start justify-between mb-2">
                           <Badge className="bg-blue-600">
@@ -184,7 +202,7 @@ export default function SentimentAnalysisPage() {
                 <CardContent>
                   <div className="text-3xl font-bold">
                     {sentimentData.bySource ? 
-                      sentimentData.bySource.filter((s: any) => (s.sentiment || 0) > 20).length : 
+                      sentimentData.bySource.filter((s) => (s.sentiment || 0) > 20).length :
                       0
                     }
                   </div>
@@ -199,7 +217,7 @@ export default function SentimentAnalysisPage() {
                 <CardContent>
                   <div className="text-3xl font-bold">
                     {sentimentData.bySource ? 
-                      sentimentData.bySource.filter((s: any) => (s.sentiment || 0) < -20).length : 
+                      sentimentData.bySource.filter((s) => (s.sentiment || 0) < -20).length :
                       0
                     }
                   </div>

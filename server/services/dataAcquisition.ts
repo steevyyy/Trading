@@ -1,4 +1,21 @@
 import { IStorage } from "../storage";
+import { insertMarketDataSchema } from "@shared/schema";
+import { z } from "zod";
+
+const ALLTICK_API_KEY = "cad28909d37d94b2962efcb1a271601f-c-app";
+
+const timeframeToKlineType: Record<string, number> = {
+  '1m': 1,
+  '5m': 2,
+  '15m': 3,
+  '30m': 4,
+  '1h': 5,
+  '2h': 6,
+  '4h': 7,
+  '1d': 8,
+  '1w': 9,
+  '1M': 10,
+};
 
 export class DataAcquisitionService {
   constructor(private storage: IStorage) {}
@@ -7,26 +24,11 @@ export class DataAcquisitionService {
     try {
       const instruments = await this.storage.getInstruments();
       
-      // Update API status
-      await this.storage.updateApiStatus('yahoo_finance', {
+      await this.storage.updateApiStatus('alltick_api', {
         status: 'active',
         errorMessage: null,
         requestCount: 0,
         rateLimitRemaining: 100
-      });
-
-      await this.storage.updateApiStatus('alpha_vantage', {
-        status: 'active',
-        errorMessage: null,
-        requestCount: 0,
-        rateLimitRemaining: 500
-      });
-
-      await this.storage.updateApiStatus('twelve_data', {
-        status: 'active',
-        errorMessage: null,
-        requestCount: 0,
-        rateLimitRemaining: 800
       });
 
       for (const instrument of instruments) {
@@ -55,20 +57,21 @@ export class DataAcquisitionService {
       const timeframes = ['1m', '5m', '15m', '1h', '4h', '1d'];
       
       for (const timeframe of timeframes) {
-        const data = await this.getTwelveData(symbol, timeframe);
+        const data = await this.getAllTickData(symbol, timeframe);
 
-        if (data && data.values) {
-          const latestData = data.values[0];
-          await this.storage.insertMarketData({
-            instrumentId,
-            timestamp: new Date(latestData.datetime),
-            open: latestData.open,
-            high: latestData.high,
-            low: latestData.low,
-            close: latestData.close,
-            volume: latestData.volume,
-            timeframe
-          });
+        if (data && data.data.kline_list) {
+          for (const kline of data.data.kline_list) {
+            await this.storage.insertMarketData({
+              instrumentId,
+              timestamp: new Date(parseInt(kline.timestamp) * 1000),
+              open: kline.open_price,
+              high: kline.high_price,
+              low: kline.low_price,
+              close: kline.close_price,
+              volume: kline.volume,
+              timeframe
+            });
+          }
         }
       }
     } catch (error) {
@@ -81,86 +84,69 @@ export class DataAcquisitionService {
     }
   }
 
-  private async getTwelveData(symbol: string, timeframe: string) {
-    const apiKey = process.env.TWELVE_DATA_API_KEY;
-    if (!apiKey) {
-      throw new Error("Twelve Data API key is not set.");
+  private async getAllTickData(symbol: string, timeframe: string): Promise<any> {
+    const instrument = await this.storage.getInstrumentBySymbol(symbol);
+    if (!instrument) {
+      throw new Error(`Instrument not found for symbol: ${symbol}`);
     }
-    const url = `https://api.twelvedata.com/time_series?symbol=${symbol}&interval=${timeframe}&apikey=${apiKey}`;
+
+    const isStock = instrument.type === 'stock';
+    const klineType = timeframeToKlineType[timeframe];
+
+    if (!klineType) {
+      throw new Error(`Unsupported timeframe: ${timeframe}`);
+    }
+
+    if (isStock && (klineType === 6 || klineType === 7)) {
+        console.log(`Skipping unsupported timeframe ${timeframe} for stock ${symbol}`);
+        return;
+    }
+
+    const baseUrl = isStock
+      ? 'https://quote.alltick.io/quote-stock-b-api/kline'
+      : 'https://quote.alltick.io/quote-b-api/kline';
+
+    const query = {
+      trace: `trace-${Date.now()}`,
+      data: {
+        code: symbol,
+        kline_type: klineType,
+        kline_timestamp_end: 0,
+        query_kline_num: 2, // Get the last 2 k-lines
+        adjust_type: 0
+      }
+    };
+
+    const encodedQuery = encodeURIComponent(JSON.stringify(query));
+    const url = `${baseUrl}?token=${ALLTICK_API_KEY}&query=${encodedQuery}`;
+
     const response = await fetch(url);
     if (!response.ok) {
-      throw new Error(`Failed to fetch data from Twelve Data: ${response.statusText}`);
+      throw new Error(`Failed to fetch data from AllTick API: ${response.statusText}`);
     }
 
-    return response.json();
-  }
-
-  private getBasePrice(symbol: string): number {
-    const basePrices: Record<string, number> = {
-      'EURUSD': 1.0847,
-      'GBPUSD': 1.2695,
-      'USDJPY': 149.50,
-      'XAUUSD': 2034.50,
-      'XAGUSD': 24.18
-    };
-    
-    return basePrices[symbol] || 1.0000;
+    const responseData = await response.json();
+    if (responseData.ret !== 200) {
+        throw new Error(`AllTick API returned an error: ${responseData.msg}`);
+    }
+    return responseData;
   }
 
   async testApiConnections(): Promise<Record<string, boolean>> {
     const results: Record<string, boolean> = {};
     
     try {
-      // Test Yahoo Finance API
-      results.yahoo_finance = true;
-      await this.storage.updateApiStatus('yahoo_finance', {
+      await this.getAllTickData('EURUSD', '1m');
+      results.alltick_api = true;
+      await this.storage.updateApiStatus('alltick_api', {
         status: 'active',
         errorMessage: null,
         requestCount: 1,
         rateLimitRemaining: 99
       });
     } catch (error) {
-      results.yahoo_finance = false;
-      await this.storage.updateApiStatus('yahoo_finance', {
-        status: 'error',
-        errorMessage: String(error),
-        requestCount: 1,
-        rateLimitRemaining: 0
-      });
-    }
-
-    try {
-      // Test Alpha Vantage API
-      results.alpha_vantage = true;
-      await this.storage.updateApiStatus('alpha_vantage', {
-        status: 'active',
-        errorMessage: null,
-        requestCount: 1,
-        rateLimitRemaining: 499
-      });
-    } catch (error) {
-      results.alpha_vantage = false;
-      await this.storage.updateApiStatus('alpha_vantage', {
-        status: 'error',
-        errorMessage: String(error),
-        requestCount: 1,
-        rateLimitRemaining: 0
-      });
-    }
-
-    try {
-      // Test Twelve Data API
-      await this.getTwelveData('EUR/USD', '1min');
-      results.twelve_data = true;
-      await this.storage.updateApiStatus('twelve_data', {
-        status: 'active',
-        errorMessage: null,
-        requestCount: 1,
-        rateLimitRemaining: 799
-      });
-    } catch (error) {
-      results.twelve_data = false;
-      await this.storage.updateApiStatus('twelve_data', {
+      results.alltick_api = false;
+      await this.storage.updateApiStatus('alltick_api', {
         status: 'error',
         errorMessage: String(error),
         requestCount: 1,

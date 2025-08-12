@@ -5,9 +5,22 @@ import { Link } from "wouter";
 import { ArrowLeft, Calendar, TrendingUp, TrendingDown, AlertTriangle } from "lucide-react";
 import { format } from "date-fns";
 
+interface FundamentalDataItem {
+  id: number;
+  event: string;
+  currency: string;
+  impact: string;
+  timestamp: string;
+  forecast: string | null;
+  actual: string | null;
+  previous: string | null;
+  score: string | null;
+}
+
 export default function FundamentalAnalysisPage() {
-  const { data: fundamentalData, isLoading } = useQuery({
+  const { data: fundamentalData, isLoading } = useQuery<FundamentalDataItem[]>({
     queryKey: ['/api/fundamental-data'],
+    initialData: [],
   });
 
   if (isLoading) {
@@ -86,7 +99,7 @@ export default function FundamentalAnalysisPage() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  {fundamentalData.map((event: any) => (
+                  {fundamentalData.map((event) => (
                     <div key={event.id} className="border border-slate-700 rounded-lg p-4">
                       <div className="flex items-start justify-between mb-3">
                         <div>
@@ -118,8 +131,8 @@ export default function FundamentalAnalysisPage() {
                         </div>
                         <div>
                           <div className="text-sm text-slate-400">Market Impact</div>
-                          <div className={`flex items-center gap-1 font-bold ${getScoreColor(event.score)}`}>
-                            {getScoreIcon(event.score)}
+                          <div className={`flex items-center gap-1 font-bold ${getScoreColor(event.score ?? '0')}`}>
+                            {getScoreIcon(event.score ?? '0')}
                             {parseFloat(event.score || '0').toFixed(1)}
                           </div>
                         </div>
@@ -138,7 +151,7 @@ export default function FundamentalAnalysisPage() {
                 </CardHeader>
                 <CardContent>
                   <div className="text-3xl font-bold">
-                    {fundamentalData.filter((event: any) => parseFloat(event.score || '0') > 20).length}
+                    {fundamentalData.filter((event) => parseFloat(event.score || '0') > 20).length}
                   </div>
                   <div className="text-slate-400">Positive impact events</div>
                 </CardContent>
@@ -150,7 +163,7 @@ export default function FundamentalAnalysisPage() {
                 </CardHeader>
                 <CardContent>
                   <div className="text-3xl font-bold">
-                    {fundamentalData.filter((event: any) => parseFloat(event.score || '0') < -20).length}
+                    {fundamentalData.filter((event) => parseFloat(event.score || '0') < -20).length}
                   </div>
                   <div className="text-slate-400">Negative impact events</div>
                 </CardContent>
@@ -162,7 +175,7 @@ export default function FundamentalAnalysisPage() {
                 </CardHeader>
                 <CardContent>
                   <div className="text-3xl font-bold">
-                    {fundamentalData.filter((event: any) => {
+                    {fundamentalData.filter((event) => {
                       const score = parseFloat(event.score || '0');
                       return score >= -20 && score <= 20;
                     }).length}
@@ -193,9 +206,9 @@ export default function FundamentalAnalysisPage() {
           <CardContent>
             <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
               {['USD', 'EUR', 'GBP', 'JPY', 'AUD', 'CAD'].map(currency => {
-                const currencyEvents = fundamentalData?.filter((event: any) => event.currency === currency) || [];
+                const currencyEvents = fundamentalData?.filter((event) => event.currency === currency) || [];
                 const avgScore = currencyEvents.length > 0 
-                  ? currencyEvents.reduce((sum: number, event: any) => sum + parseFloat(event.score || '0'), 0) / currencyEvents.length 
+                  ? currencyEvents.reduce((sum, event) => sum + parseFloat(event.score || '0'), 0) / currencyEvents.length
                   : 0;
 
                 return (

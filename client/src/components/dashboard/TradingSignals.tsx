@@ -65,20 +65,20 @@ export function TradingSignals() {
                       </div>
                       <div className="flex items-center space-x-4 mt-1">
                         <span className="text-sm text-slate-400">
-                          Entry: {parseFloat(signal.entryPrice || '0').toFixed(5)}
+                          Entry: {parseFloat(String(signal.entryPrice || '0')).toFixed(5)}
                         </span>
                         <span className="text-sm text-slate-400">
-                          Target: {parseFloat(signal.targetPrice || '0').toFixed(5)}
+                          Target: {parseFloat(String(signal.targetPrice || '0')).toFixed(5)}
                         </span>
                         <span className="text-sm text-slate-400">
-                          Stop: {parseFloat(signal.stopLoss || '0').toFixed(5)}
+                          Stop: {parseFloat(String(signal.stopLoss || '0')).toFixed(5)}
                         </span>
                       </div>
                     </div>
                   </div>
                   <div className="text-right">
                     <div className="text-white font-medium">
-                      {parseFloat(signal.confidence || '0').toFixed(0)}%
+                      {parseFloat(String(signal.confidence || '0')).toFixed(0)}%
                     </div>
                     <div className="text-xs text-slate-400">
                       {signal.timeframe} • {new Date(signal.timestamp).toLocaleTimeString()}

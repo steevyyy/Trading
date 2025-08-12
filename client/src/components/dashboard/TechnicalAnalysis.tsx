@@ -65,10 +65,10 @@ export function TechnicalAnalysis() {
                   <div className="text-xs text-slate-400 mb-1">RSI (14)</div>
                   <div className="flex items-center justify-between">
                     <span className="text-white font-medium">
-                      {parseFloat(technicalData.rsi || '50').toFixed(1)}
+                      {parseFloat(String(technicalData.rsi || '50')).toFixed(1)}
                     </span>
-                    <Badge className={getSignalColor(getSignalText(parseFloat(technicalData.rsi || '50'), 'rsi'))}>
-                      {getSignalText(parseFloat(technicalData.rsi || '50'), 'rsi')}
+                    <Badge className={getSignalColor(getSignalText(parseFloat(String(technicalData.rsi || '50')), 'rsi'))}>
+                      {getSignalText(parseFloat(String(technicalData.rsi || '50')), 'rsi')}
                     </Badge>
                   </div>
                 </div>
@@ -76,10 +76,10 @@ export function TechnicalAnalysis() {
                   <div className="text-xs text-slate-400 mb-1">MACD</div>
                   <div className="flex items-center justify-between">
                     <span className="text-white font-medium">
-                      {parseFloat(technicalData.macd || '0').toFixed(4)}
+                      {parseFloat(String(technicalData.macd || '0')).toFixed(4)}
                     </span>
-                    <Badge className={getSignalColor(getSignalText(parseFloat(technicalData.macd || '0'), 'macd'))}>
-                      {getSignalText(parseFloat(technicalData.macd || '0'), 'macd')}
+                    <Badge className={getSignalColor(getSignalText(parseFloat(String(technicalData.macd || '0')), 'macd'))}>
+                      {getSignalText(parseFloat(String(technicalData.macd || '0')), 'macd')}
                     </Badge>
                   </div>
                 </div>
@@ -87,7 +87,7 @@ export function TechnicalAnalysis() {
                   <div className="text-xs text-slate-400 mb-1">MA (50)</div>
                   <div className="flex items-center justify-between">
                     <span className="text-white font-medium">
-                      {parseFloat(technicalData.ma50 || '0').toFixed(4)}
+                      {parseFloat(String(technicalData.ma50 || '0')).toFixed(4)}
                     </span>
                     <Badge className="bg-green-500/20 text-green-400">
                       Above
@@ -118,31 +118,31 @@ export function TechnicalAnalysis() {
                 <div className="flex items-center justify-between">
                   <span className="text-red-400 text-sm">Resistance 2</span>
                   <span className="text-white">
-                    {(parseFloat(technicalData.resistanceLevel || '0') * 1.002).toFixed(4)}
+                    {(parseFloat(String(technicalData.resistanceLevel || '0')) * 1.002).toFixed(4)}
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-red-400 text-sm">Resistance 1</span>
                   <span className="text-white">
-                    {parseFloat(technicalData.resistanceLevel || '0').toFixed(4)}
+                    {parseFloat(String(technicalData.resistanceLevel || '0')).toFixed(4)}
                   </span>
                 </div>
                 <div className="flex items-center justify-between border-t border-b border-slate-600 py-2">
                   <span className="text-primary text-sm font-medium">Current Price</span>
                   <span className="text-white font-bold">
-                    {((parseFloat(technicalData.resistanceLevel || '0') + parseFloat(technicalData.supportLevel || '0')) / 2).toFixed(4)}
+                    {((parseFloat(String(technicalData.resistanceLevel || '0')) + parseFloat(String(technicalData.supportLevel || '0'))) / 2).toFixed(4)}
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-green-400 text-sm">Support 1</span>
                   <span className="text-white">
-                    {parseFloat(technicalData.supportLevel || '0').toFixed(4)}
+                    {parseFloat(String(technicalData.supportLevel || '0')).toFixed(4)}
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-green-400 text-sm">Support 2</span>
                   <span className="text-white">
-                    {(parseFloat(technicalData.supportLevel || '0') * 0.998).toFixed(4)}
+                    {(parseFloat(String(technicalData.supportLevel || '0')) * 0.998).toFixed(4)}
                   </span>
                 </div>
               </div>

@@ -133,11 +133,11 @@ async function startAutomatedServices() {
 
 async function initializeInstruments() {
   const defaultInstruments = [
-    { symbol: 'EURUSD', name: 'EUR/USD', type: 'forex', exchange: 'Forex' },
-    { symbol: 'GBPUSD', name: 'GBP/USD', type: 'forex', exchange: 'Forex' },
-    { symbol: 'USDJPY', name: 'USD/JPY', type: 'forex', exchange: 'Forex' },
-    { symbol: 'XAUUSD', name: 'Gold/USD', type: 'metal', exchange: 'Metals' },
-    { symbol: 'XAGUSD', name: 'Silver/USD', type: 'metal', exchange: 'Metals' },
+    { symbol: 'EURUSD', name: 'EUR/USD', type: 'forex', exchange: 'Forex', isActive: true },
+    { symbol: 'GBPUSD', name: 'GBP/USD', type: 'forex', exchange: 'Forex', isActive: true },
+    { symbol: 'USDJPY', name: 'USD/JPY', type: 'forex', exchange: 'Forex', isActive: true },
+    { symbol: 'XAUUSD', name: 'Gold/USD', type: 'metal', exchange: 'Metals', isActive: true },
+    { symbol: 'XAGUSD', name: 'Silver/USD', type: 'metal', exchange: 'Metals', isActive: true },
   ];
 
   for (const instrument of defaultInstruments) {
@@ -269,8 +269,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.put('/api/risk-settings/:userId', async (req, res) => {
     try {
       const userId = parseInt(req.params.userId);
-      const settings = insertRiskSettingsSchema.parse(req.body);
-      const updated = await storage.updateRiskSettings(userId, settings);
+      const parsedSettings = insertRiskSettingsSchema.parse(req.body);
+      const updated = await storage.updateRiskSettings(userId, {
+        ...parsedSettings,
+        autoStopLoss: parsedSettings.autoStopLoss ?? true,
+        riskScaling: parsedSettings.riskScaling ?? true,
+        weekendTrading: parsedSettings.weekendTrading ?? false,
+      });
       res.json(updated);
     } catch (error) {
       res.status(500).json({ error: 'Failed to update risk settings' });

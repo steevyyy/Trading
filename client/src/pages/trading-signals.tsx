@@ -6,9 +6,27 @@ import { Link } from "wouter";
 import { ArrowLeft, Signal, TrendingUp, TrendingDown, Target, Shield } from "lucide-react";
 import { format } from "date-fns";
 
+interface SignalDataItem {
+  id: number;
+  instrumentId: number;
+  signalType: string;
+  timestamp: string;
+  confidence: string;
+  entryPrice: string | null;
+  targetPrice: string | null;
+  stopLoss: string | null;
+  technicalScore: string | null;
+  fundamentalScore: string | null;
+  sentimentScore: string | null;
+  cotScore: string | null;
+  timeframe: string;
+  combinedScore: string | null;
+}
+
 export default function TradingSignalsPage() {
-  const { data: signals, isLoading } = useQuery({
+  const { data: signals, isLoading } = useQuery<SignalDataItem[]>({
     queryKey: ['/api/trading-signals'],
+    initialData: [],
   });
 
   if (isLoading) {
@@ -95,7 +113,7 @@ export default function TradingSignalsPage() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  {signals.map((signal: any) => (
+                  {signals.map((signal) => (
                     <div key={signal.id} className="border border-slate-700 rounded-lg p-4">
                       {/* Signal Header */}
                       <div className="flex items-start justify-between mb-4">
@@ -219,7 +237,7 @@ export default function TradingSignalsPage() {
                 </CardHeader>
                 <CardContent>
                   <div className="text-3xl font-bold">
-                    {signals.filter((s: any) => s.signalType?.toLowerCase() === 'buy').length}
+                    {signals.filter((s) => s.signalType?.toLowerCase() === 'buy').length}
                   </div>
                 </CardContent>
               </Card>
@@ -230,7 +248,7 @@ export default function TradingSignalsPage() {
                 </CardHeader>
                 <CardContent>
                   <div className="text-3xl font-bold">
-                    {signals.filter((s: any) => s.signalType?.toLowerCase() === 'sell').length}
+                    {signals.filter((s) => s.signalType?.toLowerCase() === 'sell').length}
                   </div>
                 </CardContent>
               </Card>
@@ -242,7 +260,7 @@ export default function TradingSignalsPage() {
                 <CardContent>
                   <div className="text-3xl font-bold">
                     {signals.length > 0 ? (
-                      signals.reduce((sum: number, s: any) => sum + parseFloat(s.confidence || '0'), 0) / signals.length
+                      signals.reduce((sum, s) => sum + parseFloat(s.confidence || '0'), 0) / signals.length
                     ).toFixed(1) : '0.0'}%
                   </div>
                 </CardContent>
@@ -254,7 +272,7 @@ export default function TradingSignalsPage() {
                 </CardHeader>
                 <CardContent>
                   <div className="text-3xl font-bold">
-                    {signals.filter((s: any) => parseFloat(s.confidence || '0') >= 80).length}
+                    {signals.filter((s) => parseFloat(s.confidence || '0') >= 80).length}
                   </div>
                   <div className="text-slate-400 text-sm">≥ 80%</div>
                 </CardContent>

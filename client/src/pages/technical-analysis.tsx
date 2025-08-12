@@ -5,12 +5,33 @@ import { Progress } from "@/components/ui/progress";
 import { Link } from "wouter";
 import { ArrowLeft, TrendingUp, TrendingDown, Minus } from "lucide-react";
 
+interface TechnicalDataItem {
+  rsi: string | null;
+  macd: string | null;
+  macdSignal: string | null;
+  ma50: string | null;
+  ma200: string | null;
+  bollingerUpper: string | null;
+  bollingerLower: string | null;
+  atr: string | null;
+  supportLevel: string | null;
+  resistanceLevel: string | null;
+}
+
+interface InstrumentDataItem {
+  instrument: {
+    id: number;
+    symbol: string;
+  };
+  price: string;
+}
+
 export default function TechnicalAnalysisPage() {
-  const { data: technicalData, isLoading } = useQuery({
+  const { data: technicalData, isLoading } = useQuery<TechnicalDataItem>({
     queryKey: ['/api/technical-analysis/1'],
   });
 
-  const { data: instruments } = useQuery({
+  const { data: instruments } = useQuery<InstrumentDataItem[]>({
     queryKey: ['/api/market-data'],
   });
 
@@ -84,17 +105,17 @@ export default function TechnicalAnalysisPage() {
               <CardDescription>Relative Strength Index</CardDescription>
             </CardHeader>
             <CardContent>
-              {(technicalData as any)?.rsi ? (
+              {technicalData?.rsi ? (
                 <div className="space-y-3">
                   <div className="text-3xl font-bold">
-                    {parseFloat((technicalData as any).rsi).toFixed(1)}
+                    {parseFloat(technicalData.rsi).toFixed(1)}
                   </div>
-                  <Progress 
-                    value={parseFloat((technicalData as any).rsi)} 
-                    className="h-2" 
+                  <Progress
+                    value={parseFloat(technicalData.rsi)}
+                    className="h-2"
                   />
-                  <Badge className={getIndicatorStatus((technicalData as any).rsi, 'rsi').color}>
-                    {getIndicatorStatus((technicalData as any).rsi, 'rsi').status}
+                  <Badge className={getIndicatorStatus(technicalData.rsi, 'rsi').color}>
+                    {getIndicatorStatus(technicalData.rsi, 'rsi').status}
                   </Badge>
                   <div className="text-sm text-slate-400">
                     <div>Oversold: &lt; 30</div>
@@ -117,16 +138,16 @@ export default function TechnicalAnalysisPage() {
               <CardDescription>Moving Average Convergence Divergence</CardDescription>
             </CardHeader>
             <CardContent>
-              {(technicalData as any)?.macd ? (
+              {technicalData?.macd ? (
                 <div className="space-y-3">
                   <div className="text-2xl font-bold">
-                    {parseFloat((technicalData as any).macd).toFixed(6)}
+                    {parseFloat(technicalData.macd).toFixed(6)}
                   </div>
                   <div className="text-sm">
-                    Signal: {(technicalData as any).macdSignal ? parseFloat((technicalData as any).macdSignal).toFixed(6) : 'N/A'}
+                    Signal: {technicalData.macdSignal ? parseFloat(technicalData.macdSignal).toFixed(6) : 'N/A'}
                   </div>
-                  <Badge className={getIndicatorStatus((technicalData as any).macd, 'macd').color}>
-                    {getIndicatorStatus((technicalData as any).macd, 'macd').status}
+                  <Badge className={getIndicatorStatus(technicalData.macd, 'macd').color}>
+                    {getIndicatorStatus(technicalData.macd, 'macd').status}
                   </Badge>
                   <div className="text-sm text-slate-400">
                     <div>Bullish: MACD &gt; Signal</div>
@@ -153,18 +174,18 @@ export default function TechnicalAnalysisPage() {
                 <div>
                   <div className="text-sm text-slate-400">MA 50</div>
                   <div className="text-xl font-bold">
-                    {(technicalData as any)?.ma50 ? parseFloat((technicalData as any).ma50).toFixed(5) : 'N/A'}
+                    {technicalData?.ma50 ? parseFloat(technicalData.ma50).toFixed(5) : 'N/A'}
                   </div>
                 </div>
                 <div>
                   <div className="text-sm text-slate-400">MA 200</div>
                   <div className="text-xl font-bold">
-                    {(technicalData as any)?.ma200 ? parseFloat((technicalData as any).ma200).toFixed(5) : 'N/A'}
+                    {technicalData?.ma200 ? parseFloat(technicalData.ma200).toFixed(5) : 'N/A'}
                   </div>
                 </div>
-                {(technicalData as any)?.ma50 && (technicalData as any)?.ma200 && (
-                  <Badge className={parseFloat((technicalData as any).ma50) > parseFloat((technicalData as any).ma200) ? 'bg-green-500' : 'bg-red-500'}>
-                    {parseFloat((technicalData as any).ma50) > parseFloat((technicalData as any).ma200) ? 'Golden Cross' : 'Death Cross'}
+                {technicalData?.ma50 && technicalData?.ma200 && (
+                  <Badge className={parseFloat(technicalData.ma50) > parseFloat(technicalData.ma200) ? 'bg-green-500' : 'bg-red-500'}>
+                    {parseFloat(technicalData.ma50) > parseFloat(technicalData.ma200) ? 'Golden Cross' : 'Death Cross'}
                   </Badge>
                 )}
               </div>
@@ -185,13 +206,13 @@ export default function TechnicalAnalysisPage() {
                 <div>
                   <div className="text-sm text-slate-400">Upper Band</div>
                   <div className="text-lg font-bold">
-                    {(technicalData as any)?.bollingerUpper ? parseFloat((technicalData as any).bollingerUpper).toFixed(5) : 'N/A'}
+                    {technicalData?.bollingerUpper ? parseFloat(technicalData.bollingerUpper).toFixed(5) : 'N/A'}
                   </div>
                 </div>
                 <div>
                   <div className="text-sm text-slate-400">Lower Band</div>
                   <div className="text-lg font-bold">
-                    {(technicalData as any)?.bollingerLower ? parseFloat((technicalData as any).bollingerLower).toFixed(5) : 'N/A'}
+                    {technicalData?.bollingerLower ? parseFloat(technicalData.bollingerLower).toFixed(5) : 'N/A'}
                   </div>
                 </div>
                 <div className="text-sm text-slate-400">
@@ -213,14 +234,14 @@ export default function TechnicalAnalysisPage() {
             <CardContent>
               <div className="space-y-3">
                 <div className="text-2xl font-bold">
-                  {(technicalData as any)?.atr ? parseFloat((technicalData as any).atr).toFixed(6) : 'N/A'}
+                  {technicalData?.atr ? parseFloat(technicalData.atr).toFixed(6) : 'N/A'}
                 </div>
                 <div className="text-sm text-slate-400">
                   Measures market volatility
                 </div>
-                {(technicalData as any)?.atr && (
+                {technicalData?.atr && (
                   <Badge className="bg-gray-600">
-                    {parseFloat((technicalData as any).atr) > 0.001 ? 'High Volatility' : 'Low Volatility'}
+                    {parseFloat(technicalData.atr) > 0.001 ? 'High Volatility' : 'Low Volatility'}
                   </Badge>
                 )}
               </div>
@@ -241,13 +262,13 @@ export default function TechnicalAnalysisPage() {
                 <div>
                   <div className="text-sm text-slate-400">Resistance</div>
                   <div className="text-lg font-bold text-red-400">
-                    {(technicalData as any)?.resistanceLevel ? parseFloat((technicalData as any).resistanceLevel).toFixed(5) : 'N/A'}
+                    {technicalData?.resistanceLevel ? parseFloat(technicalData.resistanceLevel).toFixed(5) : 'N/A'}
                   </div>
                 </div>
                 <div>
                   <div className="text-sm text-slate-400">Support</div>
                   <div className="text-lg font-bold text-green-400">
-                    {(technicalData as any)?.supportLevel ? parseFloat((technicalData as any).supportLevel).toFixed(5) : 'N/A'}
+                    {technicalData?.supportLevel ? parseFloat(technicalData.supportLevel).toFixed(5) : 'N/A'}
                   </div>
                 </div>
               </div>
@@ -256,7 +277,7 @@ export default function TechnicalAnalysisPage() {
         </div>
 
         {/* Instrument Selection */}
-        {instruments && (instruments as any[]).length > 1 && (
+        {instruments && instruments.length > 1 && (
           <Card className="bg-slate-800 border-slate-700 mt-6">
             <CardHeader>
               <CardTitle>Available Instruments</CardTitle>
@@ -264,7 +285,7 @@ export default function TechnicalAnalysisPage() {
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2">
-                {(instruments as any[]).map((item: any) => (
+                {instruments.map((item) => (
                   <Link key={item.instrument.id} href={`/technical-analysis/${item.instrument.id}`}>
                     <button className="p-3 bg-slate-700 hover:bg-slate-600 rounded border border-slate-600 text-left w-full">
                       <div className="font-bold">{item.instrument.symbol}</div>

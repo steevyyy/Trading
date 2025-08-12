@@ -23,7 +23,7 @@ export default function Dashboard() {
         <Header isConnected={isConnected} />
         
         <div className="flex-1 overflow-auto p-6 space-y-6">
-          <OverviewCards data={overview} />
+          {overview && <OverviewCards data={overview} />}
           
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <TradingSignals />

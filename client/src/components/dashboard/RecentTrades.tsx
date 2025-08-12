@@ -75,15 +75,15 @@ export function RecentTrades() {
                         </Badge>
                       </td>
                       <td className="py-3 text-slate-300">
-                        {parseFloat(trade.entryPrice).toFixed(5)}
+                        {parseFloat(String(trade.entryPrice)).toFixed(5)}
                       </td>
                       <td className="py-3 text-slate-300">
-                        {trade.exitPrice ? parseFloat(trade.exitPrice).toFixed(5) : '-'}
+                        {trade.exitPrice ? parseFloat(String(trade.exitPrice)).toFixed(5) : '-'}
                       </td>
                       <td className="py-3">
                         {trade.pnl ? (
-                          <span className={`font-medium ${parseFloat(trade.pnl) >= 0 ? 'text-green-400' : 'text-red-400'}`}>
-                            {parseFloat(trade.pnl) >= 0 ? '+' : ''}${parseFloat(trade.pnl).toFixed(2)}
+                          <span className={`font-medium ${parseFloat(String(trade.pnl)) >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                            {parseFloat(String(trade.pnl)) >= 0 ? '+' : ''}${parseFloat(String(trade.pnl)).toFixed(2)}
                           </span>
                         ) : (
                           <span className="text-slate-400">-</span>
