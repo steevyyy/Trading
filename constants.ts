@@ -1,0 +1,128 @@
+import type { Vehicle, EventService } from './types';
+import { MotorcycleIcon, CarIcon, VanIcon, BusIcon, LuxuryCarIcon } from './components/icons/VehicleIcons';
+
+export const VEHICLES: Vehicle[] = [
+  {
+    id: 1,
+    name: 'Boda Boda',
+    capacity: '1-2',
+    price: 'KSh 50/km',
+    imageUrl: 'https://images.unsplash.com/photo-1558981806-ec527fa84c39?w=800&q=80',
+    icon: MotorcycleIcon,
+  },
+  {
+    id: 2,
+    name: 'Standard Car',
+    capacity: '1-4',
+    price: 'KSh 100/km',
+    imageUrl: 'https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?w=800&q=80',
+    icon: CarIcon,
+  },
+  {
+    id: 3,
+    name: '14-Seater Van',
+    capacity: '8-14',
+    price: 'KSh 250/km',
+    imageUrl: 'https://images.unsplash.com/photo-1527786356703-4b100091cd2c?w=800&q=80',
+    icon: VanIcon,
+  },
+  {
+    id: 4,
+    name: '30-Seater Bus',
+    capacity: '20-30',
+    price: 'KSh 400/km',
+    imageUrl: 'https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?w=800&q=80',
+    icon: BusIcon,
+  },
+  {
+    id: 5,
+    name: '60-Seater Bus',
+    capacity: '40-60',
+    price: 'KSh 600/km',
+    imageUrl: 'https://images.unsplash.com/photo-1570125909232-eb263c186902?w=800&q=80',
+    icon: BusIcon,
+  },
+  {
+    id: 6,
+    name: 'Luxury Vehicle',
+    capacity: '2-6',
+    price: 'KSh 300/km',
+    imageUrl: 'https://images.unsplash.com/photo-1563720360172-67b8f3dce741?w=800&q=80',
+    icon: LuxuryCarIcon,
+  },
+  {
+    id: 7,
+    name: 'Sand Lorry',
+    capacity: '10-15 tons',
+    price: 'KSh 8,000/trip',
+    imageUrl: 'https://images.unsplash.com/photo-1581094271901-8022df4466f9?w=800&q=80',
+    icon: BusIcon,
+  },
+  {
+    id: 8,
+    name: 'Construction Materials Truck',
+    capacity: '5-20 tons',
+    price: 'KSh 5,000/trip',
+    imageUrl: 'https://images.unsplash.com/photo-1519003722824-194d4455a60c?w=800&q=80',
+    icon: BusIcon,
+  },
+];
+
+export const EVENT_SERVICES: EventService[] = [
+  {
+    id: 1,
+    name: 'Wedding Services',
+    icon: '💒',
+    description: 'Elegant and reliable transport for your special day, from bridal cars to guest shuttles.',
+    features: ['Bridal car decoration', 'Guest transportation', 'Multiple pickup points', 'Professional drivers'],
+  },
+  {
+    id: 2,
+    name: 'Dowry Ceremonies',
+    icon: '🎁',
+    description: 'Culturally sensitive transport solutions for traditional ceremonies and family gatherings.',
+    features: ['Traditional ceremony support', 'Family group transport', 'Flexible scheduling', 'Multiple vehicle coordination'],
+  },
+  {
+    id: 3,
+    name: 'Graduation Events',
+    icon: '🎓',
+    description: 'Celebrate your achievement with coordinated transport for you, your family, and friends.',
+    features: ['Graduate transportation', 'Family coordination', 'University partnerships', 'Group bookings'],
+  },
+  {
+    id: 4,
+    name: 'Corporate Events',
+    icon: '🏢',
+    description: 'Professional and punctual transportation for conferences, meetings, and airport transfers.',
+    features: ['Executive transport', 'Conference shuttles', 'Airport transfers', 'Invoice generation'],
+  },
+  {
+    id: 5,
+    name: 'Funeral Services',
+    icon: '🕊️',
+    description: 'Respectful and discreet transportation services to support families during difficult times.',
+    features: ['Respectful service', 'Family coordination', 'Flexible arrangements', 'Sensitive handling'],
+  },
+  {
+    id: 6,
+    name: 'Parties & Celebrations',
+    icon: '🎉',
+    description: 'Safe and convenient group transport for birthdays, anniversaries, and social gatherings.',
+    features: ['Birthday parties', 'Anniversary celebrations', 'Group coordination', 'Flexible timing'],
+  },
+  {
+    id: 7,
+    name: 'Construction & Materials Delivery',
+    icon: '🚛',
+    description: 'Reliable transport for sand, building materials, and construction supplies to your site.',
+    features: ['Sand delivery', 'Building materials transport', 'Bricks & cement delivery', 'Site-to-site transfer'],
+  },
+  {
+    id: 8,
+    name: 'Farm Produce Transportation',
+    icon: '🌽',
+    description: 'Fresh farm produce delivery from farms to markets, ensuring your vegetables and cereals arrive in perfect condition.',
+    features: ['Vegetables transport (Potatoes, Cabbages, Tomatoes)', 'Cereals delivery (Maize, Beans, Wheat)', 'Farm-to-market service', 'Temperature-controlled options'],
+  },
+];
